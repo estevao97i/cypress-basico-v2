@@ -204,4 +204,72 @@ describe('testa tela CAT-TAT', () => {
 
         cy.contains('CAC TAT - Política de privacidade').should('be.visible')    
     })
+
+    it('verificar as mensagens e seus tempos', () => {
+        cy.get('button[type="submit"]')
+            .click()
+        
+        cy.clock()
+
+        cy.get('span.error')
+            .should('be.visible')
+            
+        cy.tick(3000)
+            
+        cy.get('span.error')
+            .should('not.be.visible')
+    })
+
+    it('verificar mensagem de sucesso', () => {
+        cy.fillMandatoryFieldsAndSubmit(user);
+
+        cy.contains('button', 'Enviar')
+            .click()
+
+        cy.clock()
+        
+        cy.get('span.success')
+            .should('be.visible')
+
+        cy.tick(3000)
+
+        cy.get('span.success')
+            .should('not.be.visible')
+    })
+
+    it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+        cy.get('.success')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Mensagem enviada com sucesso.')
+          .invoke('hide')
+          .should('not.be.visible')
+
+        cy.get('.error')
+          .should('not.be.visible')
+          .invoke('show')
+          .should('be.visible')
+          .and('contain', 'Valide os campos obrigatórios!')
+          .invoke('hide')
+          .should('not.be.visible')
+      })
+
+      it('fazendo invoke setar valor no textArea', () => {
+        cy.get('textarea[name="open-text-area"]')
+            .invoke('val', 'teste 123 teste 1234')
+            .should('have.value', 'teste 123 teste 1234')
+      })
+
+      it('testando requisicao API', () => {
+        cy.request({
+            method: 'GET',
+            url: 'https://cac-tat.s3.eu-central-1.amazonaws.com/index.html'
+        }).then((response) => {
+            const { status, statusText, body } = response;
+            expect(status).to.equal(200);
+            expect(statusText).to.equal('OK');
+            expect(response.body).to.include('CAC TAT');
+        })
+      })
 })
